@@ -11,11 +11,11 @@ export default function StatCard({
   className,
 }) {
   const dotColors = {
-    brand: "bg-brand-500 box-shadow-[0_0_8px_rgba(59,130,246,0.5)]",
-    success: "bg-success-500 box-shadow-[0_0_8px_rgba(34,197,94,0.4)]",
-    warning: "bg-warning-500 box-shadow-[0_0_8px_rgba(245,158,11,0.4)]",
-    info: "bg-info-500 box-shadow-[0_0_8px_rgba(59,130,246,0.4)]",
-    danger: "bg-danger-500 box-shadow-[0_0_8px_rgba(239,68,68,0.4)]",
+    brand: "bg-brand-500",
+    success: "bg-success-500",
+    warning: "bg-warning-500",
+    info: "bg-info-500",
+    danger: "bg-danger-500",
   };
 
   const selectedDotColor = dotColors[accent] || dotColors.brand;
@@ -23,7 +23,7 @@ export default function StatCard({
   return (
     <div
       className={clsx(
-        "ui-panel rounded-xl p-5 flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow duration-300",
+        "ui-panel rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group hover:shadow-card-hover transition-all duration-300",
         className,
       )}
     >
@@ -41,7 +41,7 @@ export default function StatCard({
 
       <div>
         <div className="flex items-baseline gap-3">
-          <p className="text-[28px] font-semibold text-surface-900 tracking-tight leading-none">
+          <p className="text-[32px] font-semibold text-surface-900 tracking-tight leading-none">
             {value}
           </p>
 

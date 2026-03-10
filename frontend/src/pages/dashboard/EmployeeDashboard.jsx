@@ -112,23 +112,30 @@ export default function EmployeeDashboard() {
               onClick={handleCheckInOut}
               disabled={isLoading || todayRecord?.checkOut?.time}
               className={`
-                w-36 h-36 rounded-[2.5rem] flex items-center justify-center text-white font-semibold text-lg
-                transition-all duration-300 shadow-sm border border-transparent
+                w-36 h-36 rounded-[2.5rem] flex items-center justify-center text-white font-medium text-[17px] tracking-wide
+                transition-all duration-400 ease-out-expo shadow-card border border-white/10
                 disabled:opacity-50 disabled:cursor-not-allowed
+                relative overflow-hidden group
                 ${
                   todayRecord?.checkOut?.time
-                    ? "bg-surface-200 text-surface-500 border-surface-300 cursor-not-allowed"
+                    ? "bg-surface-200 text-surface-500 border-surface-300 cursor-not-allowed shadow-none"
                     : isCheckedIn
-                      ? "bg-danger-600 hover:bg-danger-700 hover:shadow-md hover:-translate-y-1 active:translate-y-0"
-                      : "bg-brand-600 hover:bg-brand-700 hover:shadow-md hover:-translate-y-1 active:translate-y-0"
+                      ? "bg-danger-600 hover:bg-danger-500 hover:-translate-y-1 hover:shadow-card-hover active:translate-y-0 active:scale-95"
+                      : "bg-brand-600 hover:bg-brand-500 hover:-translate-y-1 hover:shadow-card-hover active:translate-y-0 active:scale-95"
                 }
               `}
             >
-              <div className="flex flex-col items-center gap-1">
+              <div className="absolute inset-0 bg-linear-to-tr from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div
+                className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-[2.5rem]"
+                style={{ boxShadow: "inset 0 1px 1px rgba(255,255,255,0.4)" }}
+              />
+
+              <div className="flex flex-col items-center gap-1.5 relative z-10">
                 {todayRecord?.checkOut?.time ? (
                   <>
-                    <span className="text-xl">✓</span>
-                    <span className="text-[15px]">Done</span>
+                    <span className="text-2xl font-light">✓</span>
+                    <span className="text-[15px] font-medium">Completed</span>
                   </>
                 ) : isCheckedIn ? (
                   <>

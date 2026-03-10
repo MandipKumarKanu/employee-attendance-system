@@ -218,7 +218,7 @@ export default function Sidebar() {
       className={clsx(
         "fixed top-0 left-0 h-screen flex flex-col z-30 transition-all duration-[300ms] ease-out-expo border-r border-surface-800",
         sidebarOpen ? "w-[260px]" : "w-0 overflow-hidden",
-        "bg-[#09090b]",
+        "bg-surface-900",
       )}
     >
       {/* Logo */}

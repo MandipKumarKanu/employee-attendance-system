@@ -45,7 +45,7 @@ export default function Topbar() {
     });
 
   return (
-    <header className="sticky top-0 z-20 bg-white border-b border-surface-200 w-full shadow-sm">
+    <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-surface-200/50 w-full transition-all duration-300">
       <div className="flex items-center justify-between px-4 sm:px-8 h-16 w-full max-w-[1600px] mx-auto">
         {/* Left */}
         <div className="flex items-center gap-4">

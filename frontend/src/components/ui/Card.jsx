@@ -19,10 +19,10 @@ export default function Card({
   return (
     <Component
       className={clsx(
-        "ui-panel rounded-xl relative overflow-hidden",
+        "ui-panel rounded-2xl relative overflow-hidden",
         "transition-all duration-300",
-        hoverable && "cursor-pointer group",
-        padding && "p-6",
+        hoverable && "cursor-pointer group hover:shadow-card-hover",
+        padding && "p-6 sm:p-7",
         className,
       )}
       {...hoverProps}
