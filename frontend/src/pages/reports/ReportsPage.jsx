@@ -1,18 +1,34 @@
-import { useEffect, useState } from 'react';
-import { Download, FileText, CalendarDays, Users, TrendingUp, Clock } from 'lucide-react';
+import { useEffect, useState } from "react";
 import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, LineChart, Line,
-} from 'recharts';
-import toast from 'react-hot-toast';
-import dayjs from 'dayjs';
-import PageHeader from '../../components/common/PageHeader';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import StatCard from '../../components/dashboard/StatCard';
-import Spinner from '../../components/ui/Spinner';
+  Download,
+  FileText,
+  CalendarDays,
+  Users,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
+import toast from "react-hot-toast";
+import dayjs from "dayjs";
+import PageHeader from "../../components/common/PageHeader";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
+import StatCard from "../../components/dashboard/StatCard";
+import Spinner from "../../components/ui/Spinner";
 import {
   getAttendanceSummaryApi,
   getDepartmentBreakdownApi,
@@ -20,8 +36,8 @@ import {
   getMonthlyOverviewApi,
   exportCSVApi,
   exportPDFApi,
-} from '../../api/reportApi';
-import { getDepartmentsApi } from '../../api/departmentApi';
+} from "../../api/reportApi";
+import { getDepartmentsApi } from "../../api/departmentApi";
 
 export default function ReportsPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,9 +45,11 @@ export default function ReportsPage() {
   const [isExporting, setIsExporting] = useState(null);
 
   // Filters
-  const [startDate, setStartDate] = useState(dayjs().subtract(30, 'day').format('YYYY-MM-DD'));
-  const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'));
-  const [deptFilter, setDeptFilter] = useState('');
+  const [startDate, setStartDate] = useState(
+    dayjs().subtract(30, "day").format("YYYY-MM-DD"),
+  );
+  const [endDate, setEndDate] = useState(dayjs().format("YYYY-MM-DD"));
+  const [deptFilter, setDeptFilter] = useState("");
 
   // Data
   const [attendanceTrend, setAttendanceTrend] = useState([]);
@@ -62,36 +80,42 @@ export default function ReportsPage() {
       const params = { startDate, endDate };
       if (deptFilter) params.department = deptFilter;
 
-      const [summaryRes, breakdownRes, leaveRes, monthlyRes] = await Promise.allSettled([
-        getAttendanceSummaryApi(params),
-        getDepartmentBreakdownApi(params),
-        getLeaveAnalyticsApi(params),
-        getMonthlyOverviewApi(params),
-      ]);
+      const [summaryRes, breakdownRes, leaveRes, monthlyRes] =
+        await Promise.allSettled([
+          getAttendanceSummaryApi(params),
+          getDepartmentBreakdownApi(params),
+          getLeaveAnalyticsApi(params),
+          getMonthlyOverviewApi(params),
+        ]);
 
-      if (summaryRes.status === 'fulfilled') {
-        const data = summaryRes.value.data.data || [];
-        setAttendanceTrend(data.map((d) => ({
-          date: dayjs(d._id).format('MMM DD'),
-          present: d.totalPresent + d.totalLate,
-          absent: d.totalAbsent,
-          late: d.totalLate,
-        })));
+      if (summaryRes.status === "fulfilled") {
+        const data = summaryRes.value.data.data;
+        setAttendanceTrend(
+          Array.isArray(data)
+            ? data.map((d) => ({
+                date: dayjs(d._id).format("MMM DD"),
+                present: d.totalPresent + d.totalLate,
+                absent: d.totalAbsent,
+                late: d.totalLate,
+              }))
+            : [],
+        );
       }
 
-      if (breakdownRes.status === 'fulfilled') {
-        setDeptBreakdown(breakdownRes.value.data.data || []);
+      if (breakdownRes.status === "fulfilled") {
+        const data = breakdownRes.value.data.data;
+        setDeptBreakdown(Array.isArray(data) ? data : []);
       }
 
-      if (leaveRes.status === 'fulfilled') {
+      if (leaveRes.status === "fulfilled") {
         setLeaveAnalytics(leaveRes.value.data.data || null);
       }
 
-      if (monthlyRes.status === 'fulfilled') {
+      if (monthlyRes.status === "fulfilled") {
         setMonthlyOverview(monthlyRes.value.data.data || null);
       }
     } catch {
-      toast.error('Failed to fetch reports');
+      toast.error("Failed to fetch reports");
     } finally {
       setIsLoading(false);
     }
@@ -103,12 +127,15 @@ export default function ReportsPage() {
       const params = { startDate, endDate };
       if (deptFilter) params.department = deptFilter;
 
-      const response = type === 'csv' ? await exportCSVApi(params) : await exportPDFApi(params);
+      const response =
+        type === "csv"
+          ? await exportCSVApi(params)
+          : await exportPDFApi(params);
       const blob = new Blob([response.data], {
-        type: type === 'csv' ? 'text/csv' : 'application/pdf',
+        type: type === "csv" ? "text/csv" : "application/pdf",
       });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `report-${startDate}-to-${endDate}.${type}`;
       document.body.appendChild(link);
@@ -127,16 +154,17 @@ export default function ReportsPage() {
   const totalPresent = attendanceTrend.reduce((s, d) => s + d.present, 0);
   const totalLate = attendanceTrend.reduce((s, d) => s + d.late, 0);
   const totalAbsent = attendanceTrend.reduce((s, d) => s + d.absent, 0);
-  const avgAttendance = attendanceTrend.length > 0
-    ? Math.round((totalPresent / (totalPresent + totalAbsent)) * 100) || 0
-    : 0;
+  const avgAttendance =
+    attendanceTrend.length > 0
+      ? Math.round((totalPresent / (totalPresent + totalAbsent)) * 100) || 0
+      : 0;
 
   const tooltipStyle = {
-    background: '#292524',
-    border: 'none',
-    borderRadius: '8px',
-    color: '#F5F5F4',
-    fontSize: '13px',
+    background: "#292524",
+    border: "none",
+    borderRadius: "8px",
+    color: "#F5F5F4",
+    fontSize: "13px",
   };
 
   return (
@@ -149,8 +177,8 @@ export default function ReportsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExport('csv')}
-              isLoading={isExporting === 'csv'}
+              onClick={() => handleExport("csv")}
+              isLoading={isExporting === "csv"}
               leftIcon={<FileText className="w-4 h-4" />}
             >
               Export CSV
@@ -158,8 +186,8 @@ export default function ReportsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExport('pdf')}
-              isLoading={isExporting === 'pdf'}
+              onClick={() => handleExport("pdf")}
+              isLoading={isExporting === "pdf"}
               leftIcon={<Download className="w-4 h-4" />}
             >
               Export PDF
@@ -192,7 +220,9 @@ export default function ReportsPage() {
         >
           <option value="">All Departments</option>
           {departments.map((d) => (
-            <option key={d._id} value={d._id}>{d.name}</option>
+            <option key={d._id} value={d._id}>
+              {d.name}
+            </option>
           ))}
         </Select>
       </div>
@@ -205,10 +235,30 @@ export default function ReportsPage() {
         <>
           {/* Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard title="Total Present" value={totalPresent} icon={Users} accent="success" />
-            <StatCard title="Total Absent" value={totalAbsent} icon={Users} accent="danger" />
-            <StatCard title="Late Arrivals" value={totalLate} icon={Clock} accent="warning" />
-            <StatCard title="Avg Attendance" value={`${avgAttendance}%`} icon={TrendingUp} accent="brand" />
+            <StatCard
+              title="Total Present"
+              value={totalPresent}
+              icon={Users}
+              accent="success"
+            />
+            <StatCard
+              title="Total Absent"
+              value={totalAbsent}
+              icon={Users}
+              accent="danger"
+            />
+            <StatCard
+              title="Late Arrivals"
+              value={totalLate}
+              icon={Clock}
+              accent="warning"
+            />
+            <StatCard
+              title="Avg Attendance"
+              value={`${avgAttendance}%`}
+              icon={TrendingUp}
+              accent="brand"
+            />
           </div>
 
           {/* Charts */}
@@ -217,23 +267,56 @@ export default function ReportsPage() {
             <Card>
               <Card.Header>
                 <Card.Title>Attendance Trend</Card.Title>
-                <Card.Description>{dayjs(startDate).format('MMM DD')} - {dayjs(endDate).format('MMM DD, YYYY')}</Card.Description>
+                <Card.Description>
+                  {dayjs(startDate).format("MMM DD")} -{" "}
+                  {dayjs(endDate).format("MMM DD, YYYY")}
+                </Card.Description>
               </Card.Header>
               <div className="h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={attendanceTrend}>
                     <defs>
-                      <linearGradient id="rptPresentGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                      <linearGradient
+                        id="rptPresentGrad"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#10B981"
+                          stopOpacity={0.2}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#10B981"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E7E5E4" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#A8A29E' }} />
-                    <YAxis tick={{ fontSize: 12, fill: '#A8A29E' }} />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11, fill: "#A8A29E" }}
+                    />
+                    <YAxis tick={{ fontSize: 12, fill: "#A8A29E" }} />
                     <Tooltip contentStyle={tooltipStyle} />
-                    <Area type="monotone" dataKey="present" stroke="#10B981" fill="url(#rptPresentGrad)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="late" stroke="#F59E0B" fill="transparent" strokeWidth={2} strokeDasharray="4 4" />
+                    <Area
+                      type="monotone"
+                      dataKey="present"
+                      stroke="#10B981"
+                      fill="url(#rptPresentGrad)"
+                      strokeWidth={2}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="late"
+                      stroke="#F59E0B"
+                      fill="transparent"
+                      strokeWidth={2}
+                      strokeDasharray="4 4"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -243,16 +326,31 @@ export default function ReportsPage() {
             <Card>
               <Card.Header>
                 <Card.Title>Department Breakdown</Card.Title>
-                <Card.Description>Attendance rate by department</Card.Description>
+                <Card.Description>
+                  Attendance rate by department
+                </Card.Description>
               </Card.Header>
               <div className="h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={deptBreakdown} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#E7E5E4" />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: '#A8A29E' }} />
-                    <YAxis type="category" dataKey="department.code" tick={{ fontSize: 12, fill: '#A8A29E' }} width={50} />
+                    <XAxis
+                      type="number"
+                      domain={[0, 100]}
+                      tick={{ fontSize: 12, fill: "#A8A29E" }}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="department.code"
+                      tick={{ fontSize: 12, fill: "#A8A29E" }}
+                      width={50}
+                    />
                     <Tooltip contentStyle={tooltipStyle} />
-                    <Bar dataKey="attendanceRate" fill="#FB923C" radius={[0, 4, 4, 0]} />
+                    <Bar
+                      dataKey="attendanceRate"
+                      fill="#FB923C"
+                      radius={[0, 4, 4, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -268,18 +366,29 @@ export default function ReportsPage() {
               </Card.Header>
               {leaveAnalytics?.byType ? (
                 <div className="space-y-3">
-                  {Object.entries(leaveAnalytics.byType).map(([type, count]) => (
-                    <div key={type} className="flex items-center justify-between p-3 rounded-lg bg-surface-50">
-                      <div className="flex items-center gap-2">
-                        <CalendarDays className="w-4 h-4 text-surface-400" />
-                        <span className="text-sm text-surface-600 capitalize">{type}</span>
+                  {Object.entries(leaveAnalytics.byType).map(
+                    ([type, count]) => (
+                      <div
+                        key={type}
+                        className="flex items-center justify-between p-3 rounded-lg bg-surface-50"
+                      >
+                        <div className="flex items-center gap-2">
+                          <CalendarDays className="w-4 h-4 text-surface-400" />
+                          <span className="text-sm text-surface-600 capitalize">
+                            {type}
+                          </span>
+                        </div>
+                        <span className="text-sm font-semibold text-surface-800">
+                          {count}
+                        </span>
                       </div>
-                      <span className="text-sm font-semibold text-surface-800">{count}</span>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               ) : (
-                <p className="text-sm text-surface-400 py-4">No leave data available</p>
+                <p className="text-sm text-surface-400 py-4">
+                  No leave data available
+                </p>
               )}
             </Card>
 
@@ -290,15 +399,26 @@ export default function ReportsPage() {
               </Card.Header>
               {leaveAnalytics?.byStatus ? (
                 <div className="grid grid-cols-2 gap-3">
-                  {Object.entries(leaveAnalytics.byStatus).map(([status, count]) => (
-                    <div key={status} className="text-center p-4 rounded-lg bg-surface-50">
-                      <p className="text-2xl font-display font-bold text-surface-900">{count}</p>
-                      <p className="text-xs text-surface-400 uppercase tracking-wide mt-1 capitalize">{status}</p>
-                    </div>
-                  ))}
+                  {Object.entries(leaveAnalytics.byStatus).map(
+                    ([status, count]) => (
+                      <div
+                        key={status}
+                        className="text-center p-4 rounded-lg bg-surface-50"
+                      >
+                        <p className="text-2xl font-display font-bold text-surface-900">
+                          {count}
+                        </p>
+                        <p className="text-xs text-surface-400 tracking-wide mt-1 capitalize">
+                          {status}
+                        </p>
+                      </div>
+                    ),
+                  )}
                 </div>
               ) : (
-                <p className="text-sm text-surface-400 py-4">No leave data available</p>
+                <p className="text-sm text-surface-400 py-4">
+                  No leave data available
+                </p>
               )}
             </Card>
           </div>

@@ -1,4 +1,5 @@
-import { clsx } from 'clsx';
+import { clsx } from "clsx";
+import { motion } from "framer-motion";
 
 export default function Card({
   children,
@@ -7,25 +8,34 @@ export default function Card({
   padding = true,
   ...props
 }) {
+  const Component = hoverable ? motion.div : "div";
+  const hoverProps = hoverable
+    ? {
+        whileHover: { y: -2, boxShadow: "var(--shadow-md)" },
+        transition: { duration: 0.2, ease: "easeOut" },
+      }
+    : {};
+
   return (
-    <div
+    <Component
       className={clsx(
-        'bg-white rounded-xl border border-surface-100 shadow-card',
-        'transition-all duration-250',
-        hoverable && 'hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer',
-        padding && 'p-6',
-        className
+        "ui-panel rounded-xl relative overflow-hidden",
+        "transition-all duration-300",
+        hoverable && "cursor-pointer group",
+        padding && "p-6",
+        className,
       )}
+      {...hoverProps}
       {...props}
     >
       {children}
-    </div>
+    </Component>
   );
 }
 
 Card.Header = function CardHeader({ children, className }) {
   return (
-    <div className={clsx('mb-4', className)}>
+    <div className={clsx("mb-4 flex items-center justify-between", className)}>
       {children}
     </div>
   );
@@ -33,7 +43,12 @@ Card.Header = function CardHeader({ children, className }) {
 
 Card.Title = function CardTitle({ children, className }) {
   return (
-    <h3 className={clsx('text-[15px] font-semibold text-surface-700', className)}>
+    <h3
+      className={clsx(
+        "text-[15px] font-semibold text-surface-900 tracking-tight",
+        className,
+      )}
+    >
       {children}
     </h3>
   );
@@ -41,7 +56,12 @@ Card.Title = function CardTitle({ children, className }) {
 
 Card.Description = function CardDescription({ children, className }) {
   return (
-    <p className={clsx('text-sm text-surface-400 mt-1', className)}>
+    <p
+      className={clsx(
+        "text-[13px] text-surface-500 font-medium mt-1.5 leading-relaxed",
+        className,
+      )}
+    >
       {children}
     </p>
   );

@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
-import toast from 'react-hot-toast';
-import useAuthStore from '../../stores/authStore';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { motion } from "framer-motion";
+import { Mail, Lock, ArrowRight } from "lucide-react";
+import toast from "react-hot-toast";
+import useAuthStore from "../../stores/authStore";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const login = useAuthStore((state) => state.login);
@@ -17,9 +17,10 @@ export default function LoginPage() {
 
   const validate = () => {
     const newErrors = {};
-    if (!email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Invalid email address';
-    if (!password) newErrors.password = 'Password is required';
+    if (!email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email))
+      newErrors.email = "Invalid email address";
+    if (!password) newErrors.password = "Password is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -32,9 +33,10 @@ export default function LoginPage() {
     try {
       const user = await login(email, password);
       toast.success(`Welcome back, ${user.firstName}!`);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed. Please try again.';
+      const message =
+        error.response?.data?.message || "Login failed. Please try again.";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -48,7 +50,9 @@ export default function LoginPage() {
         <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center">
           <span className="text-xl font-display font-bold text-white">E</span>
         </div>
-        <span className="text-xl font-display font-bold text-surface-800">EAS</span>
+        <span className="text-xl font-display font-bold text-surface-800">
+          EAS
+        </span>
       </div>
 
       <motion.div
@@ -75,7 +79,7 @@ export default function LoginPage() {
             type="email"
             placeholder="you@company.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value.toLowerCase())}
             error={errors.email}
             icon={<Mail className="w-4 h-4" />}
           />

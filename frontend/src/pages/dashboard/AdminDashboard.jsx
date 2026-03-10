@@ -1,18 +1,42 @@
-import { useEffect, useState } from 'react';
-import { Users, Clock, CalendarDays, Building2, TrendingUp } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import PageHeader from '../../components/common/PageHeader';
-import StatCard from '../../components/dashboard/StatCard';
-import Card from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
-import { getUsersApi } from '../../api/userApi';
-import { getAttendanceSummaryApi, getDepartmentBreakdownApi } from '../../api/reportApi';
-import { getPendingLeavesApi } from '../../api/leaveApi';
-import { getDepartmentsApi } from '../../api/departmentApi';
-import dayjs from 'dayjs';
+import { useEffect, useState } from "react";
+import {
+  Users,
+  Clock,
+  CalendarDays,
+  Building2,
+  TrendingUp,
+} from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
+import PageHeader from "../../components/common/PageHeader";
+import StatCard from "../../components/dashboard/StatCard";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import { getUsersApi } from "../../api/userApi";
+import {
+  getAttendanceSummaryApi,
+  getDepartmentBreakdownApi,
+} from "../../api/reportApi";
+import { getPendingLeavesApi } from "../../api/leaveApi";
+import { getDepartmentsApi } from "../../api/departmentApi";
+import dayjs from "dayjs";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ employees: 0, todayPresent: 0, pendingLeaves: 0, departments: 0 });
+  const [stats, setStats] = useState({
+    employees: 0,
+    todayPresent: 0,
+    pendingLeaves: 0,
+    departments: 0,
+  });
   const [attendanceData, setAttendanceData] = useState([]);
   const [deptBreakdown, setDeptBreakdown] = useState([]);
   const [pendingLeaves, setPendingLeaves] = useState([]);
@@ -20,47 +44,64 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [usersRes, deptsRes, leavesRes, summaryRes, breakdownRes] = await Promise.allSettled([
-          getUsersApi({ limit: 1 }),
-          getDepartmentsApi(),
-          getPendingLeavesApi({ limit: 5 }),
-          getAttendanceSummaryApi({
-            startDate: dayjs().subtract(30, 'day').format('YYYY-MM-DD'),
-            endDate: dayjs().format('YYYY-MM-DD'),
-          }),
-          getDepartmentBreakdownApi({
-            startDate: dayjs().subtract(30, 'day').format('YYYY-MM-DD'),
-            endDate: dayjs().format('YYYY-MM-DD'),
-          }),
-        ]);
+        const [usersRes, deptsRes, leavesRes, summaryRes, breakdownRes] =
+          await Promise.allSettled([
+            getUsersApi({ limit: 1 }),
+            getDepartmentsApi(),
+            getPendingLeavesApi({ limit: 5 }),
+            getAttendanceSummaryApi({
+              startDate: dayjs().subtract(30, "day").format("YYYY-MM-DD"),
+              endDate: dayjs().format("YYYY-MM-DD"),
+            }),
+            getDepartmentBreakdownApi({
+              startDate: dayjs().subtract(30, "day").format("YYYY-MM-DD"),
+              endDate: dayjs().format("YYYY-MM-DD"),
+            }),
+          ]);
 
         setStats({
-          employees: usersRes.status === 'fulfilled' ? usersRes.value.data.pagination?.total || 0 : 0,
-          departments: deptsRes.status === 'fulfilled' ? deptsRes.value.data.data?.length || 0 : 0,
-          pendingLeaves: leavesRes.status === 'fulfilled' ? leavesRes.value.data.pagination?.total || 0 : 0,
+          employees:
+            usersRes.status === "fulfilled"
+              ? usersRes.value.data.pagination?.total || 0
+              : 0,
+          departments:
+            deptsRes.status === "fulfilled"
+              ? deptsRes.value.data.data?.length || 0
+              : 0,
+          pendingLeaves:
+            leavesRes.status === "fulfilled"
+              ? leavesRes.value.data.pagination?.total || 0
+              : 0,
           todayPresent: 0,
         });
 
-        if (summaryRes.status === 'fulfilled') {
+        if (summaryRes.status === "fulfilled") {
           const data = summaryRes.value.data.data || [];
-          setAttendanceData(data.slice(-14).map((d) => ({
-            date: dayjs(d._id).format('MMM DD'),
-            present: d.totalPresent + d.totalLate,
-            absent: d.totalAbsent,
-            late: d.totalLate,
-          })));
+          setAttendanceData(
+            data.slice(-14).map((d) => ({
+              date: dayjs(d._id).format("MMM DD"),
+              present: d.totalPresent + d.totalLate,
+              absent: d.totalAbsent,
+              late: d.totalLate,
+            })),
+          );
 
-          const today = data.find((d) => d._id === dayjs().format('YYYY-MM-DD'));
+          const today = data.find(
+            (d) => d._id === dayjs().format("YYYY-MM-DD"),
+          );
           if (today) {
-            setStats((s) => ({ ...s, todayPresent: today.totalPresent + today.totalLate }));
+            setStats((s) => ({
+              ...s,
+              todayPresent: today.totalPresent + today.totalLate,
+            }));
           }
         }
 
-        if (breakdownRes.status === 'fulfilled') {
+        if (breakdownRes.status === "fulfilled") {
           setDeptBreakdown(breakdownRes.value.data.data || []);
         }
 
-        if (leavesRes.status === 'fulfilled') {
+        if (leavesRes.status === "fulfilled") {
           setPendingLeaves(leavesRes.value.data.data?.slice(0, 5) || []);
         }
       } catch {
@@ -73,14 +114,37 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <PageHeader title="Admin Dashboard" description="Overview of your organization" />
+      <PageHeader
+        title="Admin Dashboard"
+        description="Overview of your organization"
+      />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard title="Total Employees" value={stats.employees} icon={Users} accent="brand" />
-        <StatCard title="Present Today" value={stats.todayPresent} icon={Clock} accent="success" />
-        <StatCard title="Pending Leaves" value={stats.pendingLeaves} icon={CalendarDays} accent="warning" />
-        <StatCard title="Departments" value={stats.departments} icon={Building2} accent="info" />
+        <StatCard
+          title="Total Employees"
+          value={stats.employees}
+          icon={Users}
+          accent="brand"
+        />
+        <StatCard
+          title="Present Today"
+          value={stats.todayPresent}
+          icon={Clock}
+          accent="success"
+        />
+        <StatCard
+          title="Pending Leaves"
+          value={stats.pendingLeaves}
+          icon={CalendarDays}
+          accent="warning"
+        />
+        <StatCard
+          title="Departments"
+          value={stats.departments}
+          icon={Building2}
+          accent="info"
+        />
       </div>
 
       {/* Charts */}
@@ -92,27 +156,59 @@ export default function AdminDashboard() {
           </Card.Header>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={attendanceData}>
+              <AreaChart
+                data={attendanceData}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="presentGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E7E5E4" />
-                <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#A8A29E' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#A8A29E' }} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#e4e4e7"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12, fill: "#71717a" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: "#71717a" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
                 <Tooltip
                   contentStyle={{
-                    background: '#292524',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#F5F5F4',
-                    fontSize: '13px',
+                    background: "#18181b",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "#ffffff",
+                    fontSize: "13px",
+                    boxShadow:
+                      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05)",
                   }}
+                  itemStyle={{ color: "#ffffff" }}
                 />
-                <Area type="monotone" dataKey="present" stroke="#10B981" fill="url(#presentGrad)" strokeWidth={2} />
-                <Area type="monotone" dataKey="late" stroke="#F59E0B" fill="transparent" strokeWidth={2} strokeDasharray="4 4" />
+                <Area
+                  type="monotone"
+                  dataKey="present"
+                  stroke="#2563eb"
+                  fill="url(#presentGrad)"
+                  strokeWidth={2}
+                />
+                <Area
+                  type="step"
+                  dataKey="late"
+                  stroke="#a1a1aa"
+                  fill="transparent"
+                  strokeWidth={2}
+                  strokeDasharray="4 4"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -125,20 +221,50 @@ export default function AdminDashboard() {
           </Card.Header>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={deptBreakdown} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#E7E5E4" />
-                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: '#A8A29E' }} />
-                <YAxis type="category" dataKey="department.code" tick={{ fontSize: 12, fill: '#A8A29E' }} width={50} />
-                <Tooltip
-                  contentStyle={{
-                    background: '#292524',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#F5F5F4',
-                    fontSize: '13px',
-                  }}
+              <BarChart
+                data={deptBreakdown}
+                layout="vertical"
+                margin={{ top: 0, right: 0, left: 10, bottom: 0 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#e4e4e7"
+                  horizontal={false}
                 />
-                <Bar dataKey="attendanceRate" fill="#FB923C" radius={[0, 4, 4, 0]} />
+                <XAxis
+                  type="number"
+                  domain={[0, 100]}
+                  tick={{ fontSize: 12, fill: "#71717a" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="department.code"
+                  tick={{ fontSize: 12, fill: "#71717a" }}
+                  width={50}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  cursor={{ fill: "#f4f4f5" }}
+                  contentStyle={{
+                    background: "#18181b",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "#ffffff",
+                    fontSize: "13px",
+                    boxShadow:
+                      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05)",
+                  }}
+                  itemStyle={{ color: "#ffffff" }}
+                />
+                <Bar
+                  dataKey="attendanceRate"
+                  fill="#2563eb"
+                  radius={[0, 4, 4, 0]}
+                  maxBarSize={32}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -151,7 +277,9 @@ export default function AdminDashboard() {
           <Card.Title>Pending Leave Requests</Card.Title>
         </Card.Header>
         {pendingLeaves.length === 0 ? (
-          <p className="text-sm text-surface-400 py-4">No pending leave requests</p>
+          <p className="text-sm text-surface-400 py-4">
+            No pending leave requests
+          </p>
         ) : (
           <div className="space-y-3">
             {pendingLeaves.map((leave) => (
@@ -165,11 +293,14 @@ export default function AdminDashboard() {
                       {leave.user?.firstName} {leave.user?.lastName}
                     </p>
                     <p className="text-xs text-surface-400">
-                      {dayjs(leave.startDate).format('MMM DD')} - {dayjs(leave.endDate).format('MMM DD, YYYY')}
+                      {dayjs(leave.startDate).format("MMM DD")} -{" "}
+                      {dayjs(leave.endDate).format("MMM DD, YYYY")}
                     </p>
                   </div>
                 </div>
-                <Badge variant={leave.leaveType} dot>{leave.leaveType}</Badge>
+                <Badge variant={leave.leaveType} dot>
+                  {leave.leaveType}
+                </Badge>
               </div>
             ))}
           </div>
