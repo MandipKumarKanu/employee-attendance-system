@@ -51,7 +51,7 @@ export default function LoginPage() {
           <span className="text-xl font-display font-bold text-white">E</span>
         </div>
         <span className="text-xl font-display font-bold text-surface-800">
-          EAS
+          NepaTronix
         </span>
       </div>
 
@@ -123,11 +123,7 @@ export default function LoginPage() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.3 }}
         className="mt-6 text-center"
-      >
-        <p className="text-xs text-surface-400">
-          Default credentials: admin@eas.local / Admin@123
-        </p>
-      </motion.div>
+      ></motion.div>
     </div>
   );
 }

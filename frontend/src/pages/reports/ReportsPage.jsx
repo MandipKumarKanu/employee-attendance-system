@@ -160,11 +160,13 @@ export default function ReportsPage() {
       : 0;
 
   const tooltipStyle = {
-    background: "#292524",
+    background: "#0f172a",
     border: "none",
     borderRadius: "8px",
-    color: "#F5F5F4",
+    color: "#ffffff",
     fontSize: "13px",
+    boxShadow:
+      "0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -4px rgba(15, 23, 42, 0.03)",
   };
 
   return (
@@ -274,7 +276,10 @@ export default function ReportsPage() {
               </Card.Header>
               <div className="h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={attendanceTrend}>
+                  <AreaChart
+                    data={attendanceTrend}
+                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  >
                     <defs>
                       <linearGradient
                         id="rptPresentGrad"
@@ -285,34 +290,48 @@ export default function ReportsPage() {
                       >
                         <stop
                           offset="5%"
-                          stopColor="#10B981"
-                          stopOpacity={0.2}
+                          stopColor="#2563eb"
+                          stopOpacity={0.15}
                         />
                         <stop
                           offset="95%"
-                          stopColor="#10B981"
+                          stopColor="#2563eb"
                           stopOpacity={0}
                         />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E7E5E4" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#e2e8f0"
+                      vertical={false}
+                    />
                     <XAxis
                       dataKey="date"
-                      tick={{ fontSize: 11, fill: "#A8A29E" }}
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      axisLine={false}
+                      tickLine={false}
                     />
-                    <YAxis tick={{ fontSize: 12, fill: "#A8A29E" }} />
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <YAxis
+                      tick={{ fontSize: 12, fill: "#64748b" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={tooltipStyle}
+                      itemStyle={{ color: "#ffffff" }}
+                      cursor={{ fill: "#f8fafc" }}
+                    />
                     <Area
                       type="monotone"
                       dataKey="present"
-                      stroke="#10B981"
+                      stroke="#2563eb"
                       fill="url(#rptPresentGrad)"
                       strokeWidth={2}
                     />
                     <Area
-                      type="monotone"
+                      type="step"
                       dataKey="late"
-                      stroke="#F59E0B"
+                      stroke="#94a3b8"
                       fill="transparent"
                       strokeWidth={2}
                       strokeDasharray="4 4"
@@ -332,24 +351,41 @@ export default function ReportsPage() {
               </Card.Header>
               <div className="h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={deptBreakdown} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E7E5E4" />
+                  <BarChart
+                    data={deptBreakdown}
+                    layout="vertical"
+                    margin={{ top: 0, right: 0, left: 10, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#e2e8f0"
+                      horizontal={false}
+                    />
                     <XAxis
                       type="number"
                       domain={[0, 100]}
-                      tick={{ fontSize: 12, fill: "#A8A29E" }}
+                      tick={{ fontSize: 12, fill: "#64748b" }}
+                      axisLine={false}
+                      tickLine={false}
                     />
                     <YAxis
                       type="category"
                       dataKey="department.code"
-                      tick={{ fontSize: 12, fill: "#A8A29E" }}
+                      tick={{ fontSize: 12, fill: "#64748b" }}
                       width={50}
+                      axisLine={false}
+                      tickLine={false}
                     />
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <Tooltip
+                      contentStyle={tooltipStyle}
+                      itemStyle={{ color: "#ffffff" }}
+                      cursor={{ fill: "#f8fafc" }}
+                    />
                     <Bar
                       dataKey="attendanceRate"
-                      fill="#FB923C"
+                      fill="#2563eb"
                       radius={[0, 4, 4, 0]}
+                      maxBarSize={32}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -370,7 +406,7 @@ export default function ReportsPage() {
                     ([type, count]) => (
                       <div
                         key={type}
-                        className="flex items-center justify-between p-3 rounded-lg bg-surface-50"
+                        className="flex items-center justify-between p-3 rounded-xl bg-surface-50"
                       >
                         <div className="flex items-center gap-2">
                           <CalendarDays className="w-4 h-4 text-surface-400" />
@@ -403,7 +439,7 @@ export default function ReportsPage() {
                     ([status, count]) => (
                       <div
                         key={status}
-                        className="text-center p-4 rounded-lg bg-surface-50"
+                        className="text-center p-4 rounded-xl bg-surface-50"
                       >
                         <p className="text-2xl font-display font-bold text-surface-900">
                           {count}

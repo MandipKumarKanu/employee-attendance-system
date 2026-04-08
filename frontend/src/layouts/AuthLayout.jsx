@@ -22,9 +22,9 @@ export default function AuthLayout() {
           <div>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <span className="text-xl font-display font-bold text-white">E</span>
+                <span className="text-xl font-display font-bold text-white">NP</span>
               </div>
-              <span className="text-xl font-display font-bold text-white">EAS</span>
+              <span className="text-xl font-display font-bold text-white">NepaTronix</span>
             </div>
           </div>
 
@@ -34,7 +34,7 @@ export default function AuthLayout() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <h1 className="text-4xl font-display font-bold text-white leading-tight mb-4">
-              Employee<br />Attendance<br />System
+              NepaTronix<br />Attendance<br />
             </h1>
             <p className="text-lg text-white/70 max-w-md">
               Track attendance, manage leaves, and streamline your workforce operations with ease.
